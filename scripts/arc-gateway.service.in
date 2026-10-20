@@ -7,8 +7,9 @@ Description=Arc gateway for @APP@ (port @PORT@, upstream GAS @UPSTREAM@)
 # The gateway opens its upstream connections per session, so it does not need GAS
 # to be up when it starts.
 WorkingDirectory=@GATEWAY_DIR@
-# make gateway-install keeps one of these two lines (GATEWAY_NODE=lts, the default, or a node path)
-#LTS#ExecStart=/bin/bash -c '. @NVM_DIR@/nvm.sh --no-use && nvm use --lts >/dev/null && exec node packages/arc-gateway/dist/cli.js --port @PORT@ --upstream @UPSTREAM@'
+# LTS: if the newest LTS known to nvm is not installed, fall back to the newest installed 24.x
+# (the Arc monorepo requires Node 24). make gateway-install keeps one of these two lines (GATEWAY_NODE=lts, the default, or a node path)
+#LTS#ExecStart=/bin/bash -c '. @NVM_DIR@/nvm.sh --no-use && { nvm use --lts >/dev/null || nvm use 24 >/dev/null; } && exec node packages/arc-gateway/dist/cli.js --port @PORT@ --upstream @UPSTREAM@'
 #PATH#ExecStart=@NODE@ packages/arc-gateway/dist/cli.js --port @PORT@ --upstream @UPSTREAM@
 Restart=on-failure
 RestartSec=3
