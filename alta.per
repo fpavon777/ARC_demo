@@ -1,0 +1,24 @@
+SCHEMA formonly
+layout
+grid
+{
+------------------------------------------------------------------------------
+
+Cliente....[C  :]
+           [DC                                                               ]
+           [                                                                 ]
+Tipo.......[t]
+Ubicacion..[CP         ]
+
+------------------------------------------------------------------------------
+
+}
+end --grid
+end --layout
+
+ATTRIBUTES
+edit C = formonly.codigo, UPSHIFT;
+textedit DC = formonly.descripcion, SCROLLBARS=none;
+combobox CP = formonly.codigop, items=(("41","Sevilla"), ("28", "Madrid"));
+radiogroup t  = FORMONLY.tipo, ORIENTATION=HORIZONTAL, items=(("A","Antiguo"),("N","Nuevo"),("O","Obsoleto"));
+	

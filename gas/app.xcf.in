@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- @APP@ GAS application connector (generated from gas/app.xcf.in by scripts/write_xcf.sh).
+     The file name (without .xcf) is the application id: GBC serves it at
+     /ua/r/<id> and the Arc gateway opens it by the same id. -->
+<APPLICATION xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Parent="defaultwa"
+             xsi:noNamespaceSchemaLocation="http://www.4js.com/ns/gas/2.50/cfextwa.xsd">
+  <EXECUTION>
+    <ENVIRONMENT_VARIABLE Id="FGLIMAGEPATH">@FGLDIR@/lib/image2font.txt</ENVIRONMENT_VARIABLE>
+    <PATH>@BIN@</PATH>
+    <MODULE>@MODULE@</MODULE>
+  </EXECUTION>
+  <UA_OUTPUT>
+    <PROXY>$(res.uaproxy.cmd)</PROXY>
+    <PUBLIC_IMAGEPATH>$(res.public.resources)</PUBLIC_IMAGEPATH>
+@GBC@
+  </UA_OUTPUT>
+</APPLICATION>

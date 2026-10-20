@@ -1,0 +1,31 @@
+schema formonly
+layout
+TABLE ( FLIPPED@MEDIUM, FLIPPED@SMALL )
+{
+[a0|f000     |s|f001      |f002                                |d ]
+[a0|f000     |s|f001      |f002                                |d ]
+[a0|f000     |s|f001      |f002                                |d ]
+[a0|f000     |s|f001      |f002                                |d ]
+[a0|f000     |s|f001      |f002                                |d ]
+[a0|f000     |s|f001      |f002                                |d ]
+[a0|f000     |s|f001      |f002                                |d ]
+[a0|f000     |s|f001      |f002                                |d ]
+[a0|f000     |s|f001      |f002                                |d ]
+[a0|f000     |s|f001      |f002                                |d ]
+[a0|f000     |s|f001      |f002                                |d ]
+[a0|f000     |s|f001      |f002                                |d ]
+
+}
+end --table
+end --layout
+attributes
+a0 = formonly.empr_alb, title="Empresa", upshift, width=7, UNMOVABLE;
+edit f000 = formonly.nume_alb, title="Numero", UNSORTABLE;
+combobox s    = formonly.stat_alb, title="Stat.", UNSIZABLE,
+  items=(("A","Alta"),("B","Bloqueado"),("C","Cobrado"));
+edit f001 = formonly.clie_alb, title="Cliente", UPSHIFT;
+edit f002 = formonly.nomb_cli, title="Nombre", STRETCH=X;
+checkbox d = formonly.tiene	type char, VALUECHECKED="S", VALUEUNCHECKED="N", title="Disp.", not null, justify=center, UNHIDABLE;
+end
+instructions
+screen record s_consulta(formonly.empr_alb thru formonly.tiene)

@@ -1,0 +1,35 @@
+:root { font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; color: #0f172a; background: #f1f5f9; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.page { max-width: 56rem; margin: 2rem auto; padding: 1.5rem 1.75rem; background: #fff; border-radius: .75rem; box-shadow: 0 1px 4px #0002; }
+header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.25rem; }
+h1 { font-size: 1.25rem; margin: 0; }
+h2 { font-size: 1rem; margin: 0 0 .5rem; color: #475569; }
+.muted { color: #64748b; }
+.error, .status.error { color: #991b1b; background: #fee2e2; padding: .5rem .75rem; border-radius: .5rem; }
+.status { color: #075985; font-size: .875rem; margin: 1rem 0 0; }
+button { font: inherit; padding: .45rem 1rem; border: 1px solid #cbd5e1; border-radius: .5rem; background: #f8fafc; cursor: pointer; }
+button:hover:not(:disabled) { background: #e2e8f0; }
+button:disabled { opacity: .45; cursor: default; }
+button.primary { background: #0f766e; border-color: #0f766e; color: #fff; }
+.menu { display: grid; gap: .5rem; max-width: 18rem; }
+.menu button { text-align: left; padding: .7rem 1rem; }
+.buttons, .toolbar { display: flex; gap: .5rem; margin-top: 1rem; }
+.toolbar { margin: 0 0 .75rem; }
+.field { display: grid; grid-template-columns: 8rem 1fr; gap: .75rem; align-items: center; margin-bottom: 1rem; border: 0; padding: 0; }
+.field.stack { grid-template-columns: 1fr; }
+fieldset.field { display: flex; align-items: center; gap: .75rem; }
+.legend { display: inline-block; width: 8rem; }
+.field .short { width: 5rem; }
+.inline { margin-right: 1rem; }
+input, select, textarea { font: inherit; padding: .35rem .5rem; border: 1px solid #cbd5e1; border-radius: .375rem; width: 100%; }
+input[type=checkbox], input[type=radio] { width: auto; }
+.grid { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.grid th { text-align: left; background: #f1f5f9; padding: .4rem .5rem; border-bottom: 2px solid #cbd5e1; }
+.grid td { padding: .25rem .5rem; border-bottom: 1px solid #e2e8f0; }
+.grid tr.current td { background: #ccfbf1; }
+.grid td input, .grid td select { padding: .15rem .3rem; }
+.overlay { position: fixed; inset: 0; background: #0f172a66; display: grid; place-items: center; }
+.modal { background: #fff; border-radius: .75rem; padding: 1.25rem 1.5rem; min-width: 20rem; max-width: 32rem; }
+.modal h3 { margin: 0 0 .5rem; }
+.prompt { white-space: pre-wrap; color: #475569; }

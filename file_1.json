@@ -1,0 +1,106 @@
+[
+  {
+    "empr_alb": "E1",
+    "nume_alb": 1001,
+    "stat_alb": "A",
+    "clie_alb": "CL001",
+    "nomb_cli": "Juan Perez",
+    "tiene": "S"
+  },
+  {
+    "empr_alb": "E1",
+    "nume_alb": 1002,
+    "stat_alb": "B",
+    "clie_alb": "CL002",
+    "nomb_cli": "Maria Gomez",
+    "tiene": "N"
+  },
+  {
+    "empr_alb": "E2",
+    "nume_alb": 1003,
+    "stat_alb": "A",
+    "clie_alb": "CL003",
+    "nomb_cli": "Carlos Ruiz",
+    "tiene": "S"
+  },
+  {
+    "empr_alb": "E2",
+    "nume_alb": 1004,
+    "stat_alb": "C",
+    "clie_alb": "CL004",
+    "nomb_cli": "Ana Torres",
+    "tiene": "N"
+  },
+  {
+    "empr_alb": "E3",
+    "nume_alb": 1005,
+    "stat_alb": "A",
+    "clie_alb": "CL005",
+    "nomb_cli": "Luis Martinez",
+    "tiene": "S"
+  },
+  {
+    "empr_alb": "E3",
+    "nume_alb": 1006,
+    "stat_alb": "B",
+    "clie_alb": "CL006",
+    "nomb_cli": "Sofia Lopez",
+    "tiene": "N"
+  },
+  {
+    "empr_alb": "E4",
+    "nume_alb": 1007,
+    "stat_alb": "A",
+    "clie_alb": "CL007",
+    "nomb_cli": "Pedro Sanchez",
+    "tiene": "S"
+  },
+  {
+    "empr_alb": "E4",
+    "nume_alb": 1008,
+    "stat_alb": "C",
+    "clie_alb": "CL008",
+    "nomb_cli": "Lucia Fernandez",
+    "tiene": "N"
+  },
+  {
+    "empr_alb": "E5",
+    "nume_alb": 1009,
+    "stat_alb": "A",
+    "clie_alb": "CL009",
+    "nomb_cli": "Miguel Castro",
+    "tiene": "S"
+  },
+  {
+    "empr_alb": "E5",
+    "nume_alb": 1010,
+    "stat_alb": "B",
+    "clie_alb": "CL010",
+    "nomb_cli": "Elena Diaz",
+    "tiene": "N"
+  },
+  {
+    "empr_alb": "E6",
+    "nume_alb": 1914,
+    "stat_alb": "C",
+    "clie_alb": "CL910",
+    "nomb_cli": "Luis Gomez",
+    "tiene": "N"
+  },
+  {
+    "empr_alb": "E6",
+    "nume_alb": 2065,
+    "stat_alb": "A",
+    "clie_alb": "CL813",
+    "nomb_cli": "Carlos Perez",
+    "tiene": "N"
+  },
+  {
+    "empr_alb": "E7",
+    "nume_alb": 2341,
+    "stat_alb": "A",
+    "clie_alb": "CL512",
+    "nomb_cli": "Teodoro Exposito",
+    "tiene": "N"
+  }
+]
