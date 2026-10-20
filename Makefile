@@ -18,7 +18,7 @@
 #   make web-dev       vite dev server (http://localhost:5173)
 #   make check-gateway check that the Arc gateway answers
 #   make gateway-install   install and start the Arc gateway as a systemd user service
-#   make gateway-start|gateway-stop|gateway-status|gateway-logs|gateway-uninstall
+#   make gateway-start|gateway-stop|gateway-restart|gateway-status|gateway-logs|gateway-uninstall
 #                      manage that service (it starts with your session and restarts on failure)
 #   make gateway-ensure start the gateway if it is not answering (used by deploy-arc)
 #   make clean         remove compiled output (bin/, dist/)
@@ -44,6 +44,10 @@ GATEWAY    ?= http://127.0.0.1:9000
 ARC_GATEWAY_DIR ?= $(abspath ../arc-monorepo)
 GATEWAY_PORT    ?= $(lastword $(subst :, ,$(GATEWAY)))
 GATEWAY_UNIT    ?= arc-gateway
+# Node used by the service: "lts" (default) = the newest LTS installed in nvm, looked up at every
+# (re)start; or "path" = the node found now (NODE, default the one in your PATH).
+GATEWAY_NODE    ?= lts
+NVM_DIR         ?= $(HOME)/.nvm
 NODE            ?= $(shell command -v node)
 GAS_APPDIR ?= $(FGLASDIR)/appdata/app
 GAS_WEBDIR ?= $(FGLASDIR)/web/$(APP)
@@ -68,7 +72,7 @@ export FGLLDPATH := $(BIN)
 export PATH := $(FGLDIR)/bin:$(FGLASDIR)/bin:$(PATH)
 
 .PHONY: all build contract i18n strings-extract run deploy deploy-gas deploy-arc web-install web-dev \
-        check-gateway gateway-install gateway-uninstall gateway-start gateway-stop gateway-status \
+        check-gateway gateway-install gateway-uninstall gateway-start gateway-stop gateway-restart gateway-status \
         gateway-logs gateway-ensure clean
 
 all: build
@@ -169,12 +173,16 @@ UNIT_FILE := $(HOME)/.config/systemd/user/$(GATEWAY_UNIT).service
 
 gateway-install:
 	@test -f "$(ARC_GATEWAY_DIR)/packages/arc-gateway/dist/cli.js" || { echo "Arc gateway not found in $(ARC_GATEWAY_DIR) (set ARC_GATEWAY_DIR)"; exit 1; }
-	@test -n "$(NODE)" || { echo "node not found (set NODE=/path/to/node)"; exit 1; }
+	@if [ "$(GATEWAY_NODE)" = lts ]; then test -s "$(NVM_DIR)/nvm.sh" || { echo "nvm not found in $(NVM_DIR) (set NVM_DIR, or GATEWAY_NODE=path)"; exit 1; }; \
+	  else test -n "$(NODE)" || { echo "node not found (set NODE=/path/to/node)"; exit 1; }; fi
 	mkdir -p $(dir $(UNIT_FILE))
 	sed -e 's|@APP@|$(APP)|g' -e 's|@PORT@|$(GATEWAY_PORT)|g' -e 's|@UPSTREAM@|http://localhost:$(GAS_PORT)|g' \
-	    -e 's|@GATEWAY_DIR@|$(ARC_GATEWAY_DIR)|g' -e 's|@NODE@|$(NODE)|g' scripts/arc-gateway.service.in > $(UNIT_FILE)
+	    -e 's|@GATEWAY_DIR@|$(ARC_GATEWAY_DIR)|g' -e 's|@NODE@|$(NODE)|g' -e 's|@NVM_DIR@|$(NVM_DIR)|g' \
+	    $(if $(filter lts,$(GATEWAY_NODE)),-e 's|^\#LTS\#||' -e '/^\#PATH\#/d',-e 's|^\#PATH\#||' -e '/^\#LTS\#/d') \
+	    scripts/arc-gateway.service.in > $(UNIT_FILE)
 	systemctl --user daemon-reload
-	systemctl --user enable --now $(GATEWAY_UNIT)
+	systemctl --user enable $(GATEWAY_UNIT)
+	systemctl --user restart $(GATEWAY_UNIT)
 	@echo "   $(GATEWAY_UNIT) installed: $(UNIT_FILE)"
 	@echo "   status: make gateway-status   logs: make gateway-logs"
 
@@ -188,6 +196,9 @@ gateway-start:
 
 gateway-stop:
 	systemctl --user stop $(GATEWAY_UNIT)
+
+gateway-restart:
+	systemctl --user restart $(GATEWAY_UNIT)
 
 gateway-status:
 	@systemctl --user --no-pager status $(GATEWAY_UNIT) || true

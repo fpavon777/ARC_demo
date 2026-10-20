@@ -89,7 +89,7 @@ For React development with hot reload, run `make web-dev` and open http://localh
 | `make gateway-ensure` | Start the gateway if it is not answering (service if installed, otherwise directly). `deploy-arc` runs it |
 | `make clean` | Remove `bin/` and `dist/` |
 
-Variables you can override: `ARC_GATEWAY_DIR` (checkout of the Arc monorepo, default `../arc-monorepo`), `GATEWAY_PORT`, `GATEWAY_UNIT`, `NODE`, `LANGS` (languages to build, default `es en`), `APPMOD` (module with the program body, default `app_demo`), `FGLDIR`, `FGLASDIR`, `APP` (application id, default `arc_demo`), `MAIN` (main module, default `main`), `GBC` (GBC customization name, default empty), `GAS_PORT`, `GATEWAY`.
+Variables you can override: `GATEWAY_NODE` (`lts` or `path`), `NVM_DIR`, `ARC_GATEWAY_DIR` (checkout of the Arc monorepo, default `../arc-monorepo`), `GATEWAY_PORT`, `GATEWAY_UNIT`, `NODE`, `LANGS` (languages to build, default `es en`), `APPMOD` (module with the program body, default `app_demo`), `FGLDIR`, `FGLASDIR`, `APP` (application id, default `arc_demo`), `MAIN` (main module, default `main`), `GBC` (GBC customization name, default empty), `GAS_PORT`, `GATEWAY`.
 
 > The application id is `arc_demo`, not `demo`: GAS already ships a sample application called `demo`, which would shadow this one.
 
@@ -103,7 +103,7 @@ make gateway-status       # service state + /health
 make gateway-logs         # last 50 lines of the journal
 ```
 
-The service starts with your session and is restarted if it crashes (a clean stop with `make gateway-stop` is respected). It uses the absolute path of `node` found when installing, so reinstall it after changing the Node version (nvm). To start it at boot without logging in, run once `loginctl enable-linger $USER`. The gateway connects to GAS per session, so it does not need `httpdispatch` to be up first.
+The service starts with your session and is restarted if it crashes (a clean stop with `make gateway-stop` is respected). It runs the **newest LTS Node installed in nvm** (`nvm use --lts`, looked up at every start, so a newer LTS is picked up on the next restart; the monorepo requires Node 24 or later). To pin the `node` found in your `PATH` instead, install with `make gateway-install GATEWAY_NODE=path`. `make gateway-install` can be re-run at any time: it rewrites the unit and restarts the service. To start it at boot without logging in, run once `loginctl enable-linger $USER`. The gateway connects to GAS per session, so it does not need `httpdispatch` to be up first.
 
 Without the service, `make deploy` still starts the gateway if nothing answers on `GATEWAY_PORT` (log in `/tmp/arc-gateway.log`; it does not survive a reboot). If a gateway is already running by hand on the port, `gateway-install` would fail to bind: stop the manual one first.
 
