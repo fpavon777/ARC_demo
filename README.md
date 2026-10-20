@@ -24,11 +24,23 @@ The 4GL does not know which front end renders it.
 - Genero BDL (`fglcomp`, `fglform`, `fglrun`) in `/opt/fourjs/fgl`
 - Genero Application Server in `/opt/fourjs/gas`, with `httpdispatch` on port 6394
 - Node.js 20+ and npm
+- The three Arc client packages in `vendor/` (see below)
 - The Arc gateway running on `http://127.0.0.1:9000`, pointed at the GAS:
   `arc-gateway --port 9000 --upstream http://localhost:6394`
 - `nc` (used by the Makefile to detect a running `httpdispatch`)
 
 Different install locations or ports can be passed to `make`, for example `make FGLDIR=/opt/fourjs/fgl-6.00.02`.
+
+## Arc packages (`vendor/`)
+
+`vendor/` is not part of this repository: the packages are Four Js software under an evaluation license and cannot be redistributed. Before `npm install`, copy these files from the Four Js Arc example project (`ARC-example-project/web/vendor/`) or ask Four Js for them:
+
+```
+vendor/4js-ai-arc-client-0.1.1.tgz
+vendor/4js-ai-arc-protocol-0.1.1.tgz
+vendor/4js-ai-arc-react-0.1.1.tgz
+vendor/LICENSE.txt
+```
 
 ## Quick start
 
@@ -112,7 +124,7 @@ genv.sh                environment for running without make
 gas/app.xcf.in         GAS connector template
 scripts/               contract generator and GAS connector writer
 src/                   React UI (App.tsx, components/, generated/)
-vendor/                Arc client packages (installed from here, no registry needed)
+vendor/                Arc client packages (not versioned, see above)
 arc_docs/              Arc reference documentation
 bin/, dist/            build output (not versioned)
 ```
@@ -138,4 +150,4 @@ The values are baked into the build, so run `make deploy-arc` again after changi
 
 ## License
 
-`vendor/` contains Four Js software under the evaluation license in `vendor/LICENSE.txt`. Do not redistribute those packages on their own.
+The Arc client packages in `vendor/` (not included) are Four Js software under the evaluation license in `vendor/LICENSE.txt`.

@@ -6,5 +6,8 @@ node_modules/
 *.42f
 *.42r
 
+# Four Js evaluation packages: not redistributable, obtained separately
+vendor/
+
 # local configuration
 .env.local
