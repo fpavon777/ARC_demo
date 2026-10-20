@@ -35,3 +35,5 @@ input[type=checkbox], input[type=radio] { width: auto; }
 .modal { background: #fff; border-radius: .75rem; padding: 1.25rem 1.5rem; min-width: 20rem; max-width: 32rem; }
 .modal h3 { margin: 0 0 .5rem; }
 .prompt { white-space: pre-wrap; color: #475569; }
+.lang { margin-left: auto; font-size: .85rem; color: #475569; display: flex; align-items: center; gap: .4rem; }
+.lang select { width: auto; padding: .15rem .3rem; }

@@ -7,7 +7,7 @@
  * an action the program currently offers (win.actions[name].enabled), so
  * the UI never fires something the 4GL is not listening for.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useGeneroSession, useWindowStack } from '@4js-ai/arc-react';
 import type { Session, WindowSnapshot } from '@4js-ai/arc-client';
 import { ArcDemo } from './generated/arc_demo';
@@ -15,26 +15,31 @@ import { Albaranes } from './components/Albaranes';
 import { Alta, Descripcion } from './components/Forms';
 import { Modal } from './components/Modal';
 import { NOISE, WIN, enabled } from './lib';
+import { LANGS, t, type Lang } from './i18n';
 
 type S = ArcDemo.Session & Session;
 
+// Window titles of OPEN WINDOW ... text=%"win.*" in app_demo.4gl; the protocol does not carry them.
 const TITLES: Record<string, string> = {
-  [WIN.albaranes]: 'Consulta de albaranes',
-  [WIN.desc]: 'Texto',
-  [WIN.alta]: 'Alta de cliente',
+  [WIN.menu]: 'app.titulo',
+  [WIN.albaranes]: 'win.albaranes',
+  [WIN.desc]: 'win.desc',
+  [WIN.alta]: 'win.alta',
 };
 
-export function App() {
-  const session = useGeneroSession(ArcDemo) as unknown as S;
+export function App({ lang, onLang }: { lang: Lang; onLang: (lang: Lang) => void }) {
+  // one GAS connector per language (<app>_<lang>.xcf): the language is its program argument
+  const app = useMemo(() => ({ ...ArcDemo, __app: `${ArcDemo.__app}_${lang}` }), [lang]);
+  const session = useGeneroSession(app) as unknown as S;
   const stack = useWindowStack(session);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = 'Demo';
+    document.title = t('app.titulo', lang);
     return session.on?.('error', (e) => setError(String((e as { message?: string }).message ?? e)));
   }, [session]);
 
-  if (!session.sessionId) return <p className="muted page">Conectando con el programa Genero…</p>;
+  if (!session.sessionId) return <p className="muted page">{t('ui.conectando', lang)}</p>;
 
   const wins = stack.map((e) => e.window);
   const top = wins.at(-1);
@@ -45,12 +50,20 @@ export function App() {
   return (
     <main className="page">
       <header>
-        <h1>{top ? (TITLES[top.formName] ?? 'Demo') : 'Demo'}</h1>
-        {top?.formName === WIN.menu && <span className="muted">Fecha {new Date().toLocaleDateString('es-ES')}</span>}
+        <h1>{t((top && TITLES[top.formName]) || 'app.titulo', lang)}</h1>
+        {top?.formName === WIN.menu && <span className="muted">{t('portada.fecha', lang, new Date().toLocaleDateString(lang))}</span>}
+        <label className="lang">
+          {t('ui.idioma', lang)}
+          <select value={lang} onChange={(e) => onLang(e.target.value as Lang)}>
+            {LANGS.map((l) => (
+              <option key={l} value={l}>{l.toUpperCase()}</option>
+            ))}
+          </select>
+        </label>
       </header>
 
       {error && <p className="error">{error}</p>}
-      {closed && <p className="muted">Sesión cerrada.</p>}
+      {closed && <p className="muted">{t('ui.cerrada', lang)}</p>}
       {top && !closed && <Screen session={session} win={top} onFire={fire} />}
 
       <Status wins={wins} />

@@ -6,8 +6,11 @@
              xsi:noNamespaceSchemaLocation="http://www.4js.com/ns/gas/2.50/cfextwa.xsd">
   <EXECUTION>
     <ENVIRONMENT_VARIABLE Id="FGLIMAGEPATH">@FGLDIR@/lib/image2font.txt</ENVIRONMENT_VARIABLE>
+    <ENVIRONMENT_VARIABLE Id="FGLPROFILE">@BIN@/fglprofile</ENVIRONMENT_VARIABLE>
+    <ENVIRONMENT_VARIABLE Id="FGLRESOURCEPATH">@BIN@/es</ENVIRONMENT_VARIABLE>
     <PATH>@BIN@</PATH>
     <MODULE>@MODULE@</MODULE>
+@PARAMS@
   </EXECUTION>
   <UA_OUTPUT>
     <PROXY>$(res.uaproxy.cmd)</PROXY>

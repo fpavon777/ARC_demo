@@ -1,5 +1,5 @@
 /**
- * AUTO-GENERATED Arc contract for `arc_demo` (program `main.4gl`,
+ * AUTO-GENERATED Arc contract for `arc_demo` (program `app_demo.4gl`,
  * forms: alta.per, desc.per, form_1.per, portada.per).
  *
  * Produced by scripts/generate-contract.mjs - do not edit by hand. `make`
@@ -46,7 +46,7 @@ export namespace ArcDemo {
     tiene: string;
   }
 
-  export type Action = 'desc' | 'alta' | 'sal' | 'cancel' | 'close' | 'yes' | 'no' | 'albaranes' | 'help';
+  export type Action = 'albaranes' | 'desc' | 'alta' | 'sal' | 'cancel' | 'close' | 'yes' | 'no' | 'help';
 
   export interface Session extends Omit<ArcSession, 'fields' | 'actions'> {
     readonly fields: ReactiveRecord<Fields>;

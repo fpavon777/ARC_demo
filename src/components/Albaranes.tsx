@@ -3,27 +3,21 @@ import { useDialogState, useField } from '@4js-ai/arc-react';
 import type { Session, WindowSnapshot } from '@4js-ai/arc-client';
 import { ArcDemo } from '../generated/arc_demo';
 import { enabled, firstList } from '../lib';
+import { t } from '../i18n';
 
 type S = ArcDemo.Session & Session;
+type Editors = Record<'empr_alb' | 'nume_alb' | 'stat_alb' | 'clie_alb' | 'nomb_cli' | 'tiene', unknown>;
 type Editor = { value: string | number | null; set: (v: string, o?: { force?: boolean }) => void };
 
 // Rows requested from the program at once: the default window is only ~12 rows.
 const PAGE_SIZE = 200;
 
-// Items of the `stat_alb` COMBOBOX and the `tiene` CHECKBOX in form_1.per.
-const STATUS = [
-  { value: 'A', label: 'Alta' },
-  { value: 'B', label: 'Bloqueado' },
-  { value: 'C', label: 'Cobrado' },
-];
-const COLUMNS = [
-  { path: 'empr_alb', label: 'Empresa' },
-  { path: 'nume_alb', label: 'Numero' },
-  { path: 'stat_alb', label: 'Stat.' },
-  { path: 'clie_alb', label: 'Cliente' },
-  { path: 'nomb_cli', label: 'Nombre' },
-  { path: 'tiene', label: 'Disp.' },
-] as const;
+// Items of the `stat_alb` COMBOBOX and the `tiene` CHECKBOX in form_1.per; texts come from the .str files.
+const STATUS = ['A', 'B', 'C'].map((value, i) => ({ value, key: ['alta', 'bloqueado', 'cobrado'][i]! }));
+const COLUMNS = ['empr_alb', 'nume_alb', 'stat_alb', 'clie_alb', 'nomb_cli', 'tiene'].map((path, i) => ({
+  path: path as keyof Editors,
+  key: ['empresa', 'numero', 'stat', 'cliente', 'nombre', 'disp'][i]!,
+}));
 
 /** form_1.per: INPUT ARRAY over s_consulta. Cells of the current row are editable. */
 export function Albaranes({ session, win }: { session: S; win: WindowSnapshot }) {
@@ -74,7 +68,7 @@ export function Albaranes({ session, win }: { session: S; win: WindowSnapshot })
         <thead>
           <tr>
             {COLUMNS.map((c) => (
-              <th key={c.path}>{c.label}</th>
+              <th key={c.path}>{t(`albaranes.col.${c.key}`)}</th>
             ))}
           </tr>
         </thead>
@@ -91,7 +85,7 @@ export function Albaranes({ session, win }: { session: S; win: WindowSnapshot })
                   if (!current) {
                     return (
                       <td key={c.path}>
-                        {c.path === 'stat_alb' ? (STATUS.find((s) => s.value === cell)?.label ?? cell) : c.path === 'tiene' ? (cell === 'S' ? '✓' : '') : cell}
+                        {c.path === 'stat_alb' ? (t(`albaranes.stat.${STATUS.find((s) => s.value === cell)?.key ?? ''}`) ) : c.path === 'tiene' ? (cell === 'S' ? '✓' : '') : cell}
                       </td>
                     );
                   }
@@ -101,7 +95,7 @@ export function Albaranes({ session, win }: { session: S; win: WindowSnapshot })
                       {c.path === 'stat_alb' ? (
                         <select value={ed.value ?? cell} onChange={(e) => ed.set(e.target.value)}>
                           {STATUS.map((s) => (
-                            <option key={s.value} value={s.value}>{s.label}</option>
+                            <option key={s.value} value={s.value}>{t(`albaranes.stat.${s.key}`)}</option>
                           ))}
                         </select>
                       ) : c.path === 'tiene' ? (
