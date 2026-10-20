@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useDialogState, useField } from '@4js-ai/arc-react';
 import type { Session, WindowSnapshot } from '@4js-ai/arc-client';
 import { ArcDemo } from '../generated/arc_demo';
@@ -5,6 +6,9 @@ import { enabled, firstList } from '../lib';
 
 type S = ArcDemo.Session & Session;
 type Editor = { value: string | number | null; set: (v: string, o?: { force?: boolean }) => void };
+
+// Rows requested from the program at once: the default window is only ~12 rows.
+const PAGE_SIZE = 200;
 
 // Items of the `stat_alb` COMBOBOX and the `tiene` CHECKBOX in form_1.per.
 const STATUS = [
@@ -31,6 +35,24 @@ export function Albaranes({ session, win }: { session: S; win: WindowSnapshot })
   const clie = useField(session.fields.clie_alb);
   const nomb = useField(session.fields.nomb_cli);
   const tiene = useField(session.fields.tiene);
+  const table = useRef<HTMLDivElement>(null);
+
+  // Ask once for a big window so the whole array is available to scroll through.
+  const listPath = found?.path;
+  const requested = useRef<string | null>(null);
+  useEffect(() => {
+    if (!listPath || requested.current === listPath) return;
+    requested.current = listPath;
+    session.setListCursor(listPath, state.kind === 'inputArray' ? state.rowIndex : 0, { pageSize: PAGE_SIZE });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listPath, session]);
+
+  // Keep the current row visible while moving through the list.
+  const currentRow = state.kind === 'inputArray' ? state.rowIndex : undefined;
+  useEffect(() => {
+    table.current?.querySelector('tr.current')?.scrollIntoView({ block: 'nearest' });
+  }, [currentRow]);
+
   if (!found || found.list.kind !== 'list') return <p className="muted">Cargando…</p>;
   const { path, list } = found;
   const editors = { empr_alb: empr, nume_alb: nume, stat_alb: stat, clie_alb: clie, nomb_cli: nomb, tiene };
@@ -47,6 +69,7 @@ export function Albaranes({ session, win }: { session: S; win: WindowSnapshot })
           </button>
         ))}
       </div>
+      <div className="scroll" ref={table}>
       <table className="grid">
         <thead>
           <tr>
@@ -56,7 +79,8 @@ export function Albaranes({ session, win }: { session: S; win: WindowSnapshot })
           </tr>
         </thead>
         <tbody>
-          {list.rows.map((row, r) => {
+          {/* rows beyond `size` are padding of the requested window */}
+          {list.rows.slice(0, Math.max(0, (list.size ?? list.rows.length) - (list.offset ?? 0))).map((row, r) => {
             // `rows` is a window of the array starting at `offset`; `cursor` is absolute
             const abs = (list.offset ?? 0) + r;
             const current = abs === cursor;
@@ -97,6 +121,7 @@ export function Albaranes({ session, win }: { session: S; win: WindowSnapshot })
           })}
         </tbody>
       </table>
+      </div>
     </>
   );
 }
