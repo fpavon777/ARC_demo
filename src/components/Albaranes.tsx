@@ -1,4 +1,4 @@
-import { useField } from '@4js-ai/arc-react';
+import { useDialogState, useField } from '@4js-ai/arc-react';
 import type { Session, WindowSnapshot } from '@4js-ai/arc-client';
 import { ArcDemo } from '../generated/arc_demo';
 import { enabled, firstList } from '../lib';
@@ -24,6 +24,7 @@ const COLUMNS = [
 /** form_1.per: INPUT ARRAY over s_consulta. Cells of the current row are editable. */
 export function Albaranes({ session, win }: { session: S; win: WindowSnapshot }) {
   const found = firstList(win);
+  const state = useDialogState(session);
   const empr = useField(session.fields.empr_alb);
   const nume = useField(session.fields.nume_alb);
   const stat = useField(session.fields.stat_alb);
@@ -34,6 +35,8 @@ export function Albaranes({ session, win }: { session: S; win: WindowSnapshot })
   const { path, list } = found;
   const editors = { empr_alb: empr, nume_alb: nume, stat_alb: stat, clie_alb: clie, nomb_cli: nomb, tiene };
   const idx = (name: string) => list.columns.indexOf(name);
+  // After insert/delete the list snapshot reports a null cursor; the dialog state keeps the row.
+  const cursor = state.kind === 'inputArray' ? state.rowIndex : list.cursor;
 
   return (
     <>
@@ -56,7 +59,7 @@ export function Albaranes({ session, win }: { session: S; win: WindowSnapshot })
           {list.rows.map((row, r) => {
             // `rows` is a window of the array starting at `offset`; `cursor` is absolute
             const abs = (list.offset ?? 0) + r;
-            const current = abs === list.cursor;
+            const current = abs === cursor;
             return (
               <tr key={r} className={current ? 'current' : undefined} onClick={() => !current && session.setListCursor(path, abs)}>
                 {COLUMNS.map((c) => {
