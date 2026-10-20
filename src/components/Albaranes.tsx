@@ -54,9 +54,11 @@ export function Albaranes({ session, win }: { session: S; win: WindowSnapshot })
         </thead>
         <tbody>
           {list.rows.map((row, r) => {
-            const current = r === list.cursor;
+            // `rows` is a window of the array starting at `offset`; `cursor` is absolute
+            const abs = (list.offset ?? 0) + r;
+            const current = abs === list.cursor;
             return (
-              <tr key={r} className={current ? 'current' : undefined} onClick={() => !current && session.setListCursor(path, r)}>
+              <tr key={r} className={current ? 'current' : undefined} onClick={() => !current && session.setListCursor(path, abs)}>
                 {COLUMNS.map((c) => {
                   const cell = String(row[idx(c.path)] ?? '');
                   if (!current) {
