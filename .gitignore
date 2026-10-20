@@ -6,8 +6,9 @@ node_modules/
 *.42f
 *.42r
 
-# Four Js evaluation packages: not redistributable, obtained separately
+# Four Js material under an evaluation license: not redistributable, obtained separately
 vendor/
+arc_docs/
 
 # local configuration
 .env.local

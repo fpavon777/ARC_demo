@@ -24,16 +24,20 @@ The 4GL does not know which front end renders it.
 - Genero BDL (`fglcomp`, `fglform`, `fglrun`) in `/opt/fourjs/fgl`
 - Genero Application Server in `/opt/fourjs/gas`, with `httpdispatch` on port 6394
 - Node.js 20+ and npm
-- The three Arc client packages in `vendor/` (see below)
+- The three Arc client packages in `vendor/` (see "Files not included" below)
 - The Arc gateway running on `http://127.0.0.1:9000`, pointed at the GAS:
   `arc-gateway --port 9000 --upstream http://localhost:6394`
 - `nc` (used by the Makefile to detect a running `httpdispatch`)
 
 Different install locations or ports can be passed to `make`, for example `make FGLDIR=/opt/fourjs/fgl-6.00.02`.
 
-## Arc packages (`vendor/`)
+## Files not included in the repository
 
-`vendor/` is not part of this repository: the packages are Four Js software under an evaluation license and cannot be redistributed. Before `npm install`, copy these files from the Four Js Arc example project (`ARC-example-project/web/vendor/`) or ask Four Js for them:
+`vendor/` and `arc_docs/` come from the Four Js Arc example project (`ARC-example-project`). They are Four Js material under an evaluation license and cannot be redistributed, so both directories are listed in `.gitignore`.
+
+### `vendor/` (required)
+
+The three Arc client packages that `package.json` installs, plus their license. Copy them from `ARC-example-project/web/vendor/` (or ask Four Js) **before** `npm install`:
 
 ```
 vendor/4js-ai-arc-client-0.1.1.tgz
@@ -41,6 +45,10 @@ vendor/4js-ai-arc-protocol-0.1.1.tgz
 vendor/4js-ai-arc-react-0.1.1.tgz
 vendor/LICENSE.txt
 ```
+
+### `arc_docs/` (optional)
+
+Arc reference documentation: `README.md`, `how-it-works.md`, `typed-contract.md` and `build-your-own.md`. Nothing in the build uses it. Copy it from `ARC-example-project/docs/` and `ARC-example-project/web/README.md` if you want it next to the code.
 
 ## Quick start
 
@@ -125,7 +133,7 @@ gas/app.xcf.in         GAS connector template
 scripts/               contract generator and GAS connector writer
 src/                   React UI (App.tsx, components/, generated/)
 vendor/                Arc client packages (not versioned, see above)
-arc_docs/              Arc reference documentation
+arc_docs/              Arc reference documentation (not versioned, optional)
 bin/, dist/            build output (not versioned)
 ```
 
@@ -150,4 +158,4 @@ The values are baked into the build, so run `make deploy-arc` again after changi
 
 ## License
 
-The Arc client packages in `vendor/` (not included) are Four Js software under the evaluation license in `vendor/LICENSE.txt`.
+The Arc client packages in `vendor/` and the documentation in `arc_docs/` (neither included) are Four Js software under the evaluation license in `vendor/LICENSE.txt`.
