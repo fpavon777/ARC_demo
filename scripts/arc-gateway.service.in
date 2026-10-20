@@ -1,0 +1,15 @@
+# systemd user unit for the Arc gateway (generated from scripts/arc-gateway.service.in
+# by `make gateway-install`). Put in front of the GAS that serves @APP@.
+[Unit]
+Description=Arc gateway for @APP@ (port @PORT@, upstream GAS @UPSTREAM@)
+
+[Service]
+# The gateway opens its upstream connections per session, so it does not need GAS
+# to be up when it starts.
+WorkingDirectory=@GATEWAY_DIR@
+ExecStart=@NODE@ packages/arc-gateway/dist/cli.js --port @PORT@ --upstream @UPSTREAM@
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

@@ -17,6 +17,10 @@
 #   make web-install   npm install
 #   make web-dev       vite dev server (http://localhost:5173)
 #   make check-gateway check that the Arc gateway answers
+#   make gateway-install   install and start the Arc gateway as a systemd user service
+#   make gateway-start|gateway-stop|gateway-status|gateway-logs|gateway-uninstall
+#                      manage that service (it starts with your session and restarts on failure)
+#   make gateway-ensure start the gateway if it is not answering (used by deploy-arc)
 #   make clean         remove compiled output (bin/, dist/)
 #
 # Languages: every strings/<lang>/ directory listed in LANGS is compiled into bin/<lang>/
@@ -36,6 +40,11 @@ GBC        ?=
 LANGS      ?= es en
 GAS_PORT   ?= 6394
 GATEWAY    ?= http://127.0.0.1:9000
+# Arc gateway service: checkout of the Arc monorepo, port, and name of the systemd user unit
+ARC_GATEWAY_DIR ?= $(abspath ../arc-monorepo)
+GATEWAY_PORT    ?= $(lastword $(subst :, ,$(GATEWAY)))
+GATEWAY_UNIT    ?= arc-gateway
+NODE            ?= $(shell command -v node)
 GAS_APPDIR ?= $(FGLASDIR)/appdata/app
 GAS_WEBDIR ?= $(FGLASDIR)/web/$(APP)
 
@@ -59,7 +68,8 @@ export FGLLDPATH := $(BIN)
 export PATH := $(FGLDIR)/bin:$(FGLASDIR)/bin:$(PATH)
 
 .PHONY: all build contract i18n strings-extract run deploy deploy-gas deploy-arc web-install web-dev \
-        check-gateway clean
+        check-gateway gateway-install gateway-uninstall gateway-start gateway-stop gateway-status \
+        gateway-logs gateway-ensure clean
 
 all: build
 
@@ -141,7 +151,7 @@ dist/index.html: $(CONTRACT) $(WEBSRC)
 	@test -f package.json -a -f index.html || { echo "no React app yet (index.html missing)"; exit 1; }
 	npm run build
 
-deploy-arc: build dist/index.html
+deploy-arc: build dist/index.html gateway-ensure
 	mkdir -p "$(GAS_WEBDIR)"
 	rm -rf "$(GAS_WEBDIR)"/*
 	cp -r dist/. "$(GAS_WEBDIR)"/
@@ -151,6 +161,54 @@ deploy: deploy-gas deploy-arc
 
 check-gateway:
 	@curl -fsS -m 3 $(GATEWAY)/health && echo || { echo "Arc gateway not reachable at $(GATEWAY)"; exit 1; }
+
+# --- Arc gateway as a service -------------------------------------------------
+# systemd user unit: starts with your session, restarts on failure. To start it at boot
+# without logging in, run once: loginctl enable-linger $(USER)
+UNIT_FILE := $(HOME)/.config/systemd/user/$(GATEWAY_UNIT).service
+
+gateway-install:
+	@test -f "$(ARC_GATEWAY_DIR)/packages/arc-gateway/dist/cli.js" || { echo "Arc gateway not found in $(ARC_GATEWAY_DIR) (set ARC_GATEWAY_DIR)"; exit 1; }
+	@test -n "$(NODE)" || { echo "node not found (set NODE=/path/to/node)"; exit 1; }
+	mkdir -p $(dir $(UNIT_FILE))
+	sed -e 's|@APP@|$(APP)|g' -e 's|@PORT@|$(GATEWAY_PORT)|g' -e 's|@UPSTREAM@|http://localhost:$(GAS_PORT)|g' \
+	    -e 's|@GATEWAY_DIR@|$(ARC_GATEWAY_DIR)|g' -e 's|@NODE@|$(NODE)|g' scripts/arc-gateway.service.in > $(UNIT_FILE)
+	systemctl --user daemon-reload
+	systemctl --user enable --now $(GATEWAY_UNIT)
+	@echo "   $(GATEWAY_UNIT) installed: $(UNIT_FILE)"
+	@echo "   status: make gateway-status   logs: make gateway-logs"
+
+gateway-uninstall:
+	-systemctl --user disable --now $(GATEWAY_UNIT)
+	rm -f $(UNIT_FILE)
+	systemctl --user daemon-reload
+
+gateway-start:
+	systemctl --user start $(GATEWAY_UNIT)
+
+gateway-stop:
+	systemctl --user stop $(GATEWAY_UNIT)
+
+gateway-status:
+	@systemctl --user --no-pager status $(GATEWAY_UNIT) || true
+	@curl -fsS -m 3 $(GATEWAY)/health && echo || echo "gateway not answering at $(GATEWAY)"
+
+gateway-logs:
+	journalctl --user -u $(GATEWAY_UNIT) -n 50 --no-pager
+
+# Start the gateway only if it is not answering: through the service when installed,
+# else directly (log: /tmp/$(GATEWAY_UNIT).log). Never fails the build.
+gateway-ensure:
+	@if curl -fsS -m 2 $(GATEWAY)/health >/dev/null 2>&1; then \
+	  echo "   Arc gateway already answering at $(GATEWAY)"; \
+	elif [ -f "$(UNIT_FILE)" ]; then \
+	  echo "   starting $(GATEWAY_UNIT) service"; systemctl --user start $(GATEWAY_UNIT) || true; sleep 2; \
+	elif [ -f "$(ARC_GATEWAY_DIR)/packages/arc-gateway/dist/cli.js" ] && [ -n "$(NODE)" ]; then \
+	  echo "   starting the Arc gateway on :$(GATEWAY_PORT) (log: /tmp/$(GATEWAY_UNIT).log); 'make gateway-install' makes it permanent"; \
+	  ( cd "$(ARC_GATEWAY_DIR)" && nohup "$(NODE)" packages/arc-gateway/dist/cli.js --port $(GATEWAY_PORT) --upstream http://localhost:$(GAS_PORT) > /tmp/$(GATEWAY_UNIT).log 2>&1 < /dev/null & ); sleep 2; \
+	else \
+	  echo "   warning: Arc gateway not running and not found in $(ARC_GATEWAY_DIR)"; \
+	fi
 
 clean:
 	rm -rf $(BIN) dist
