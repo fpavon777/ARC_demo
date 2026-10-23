@@ -7,6 +7,8 @@
 #   make build         same as above
 #   make strings-extract
 #                      list the translatable keys found in the sources
+#   make db            create the PostgreSQL database arc_demo, table paises and its data (idempotent)
+#   make db-reset      drop the database and build it again
 #   make i18n          regenerate src/generated/i18n.ts (dictionary of the React UI)
 #   make contract      regenerate src/generated/<app>.ts (runs automatically
 #                      whenever a .4gl or .per file is newer than the contract)
@@ -35,6 +37,7 @@ FGLDIR     ?= /opt/fourjs/fgl
 FGLASDIR   ?= /opt/fourjs/gas
 APP        ?= arc_demo
 MAIN       ?= main
+DBNAME     ?= arc_demo
 APPMOD     ?= app_demo
 GBC        ?=
 LANGS      ?= es en
@@ -60,6 +63,7 @@ SRCPER   := $(wildcard *.per)
 RESOURCES ?= $(wildcard *.4st) file_1.json fglprofile default.4ad
 CONTRACT := src/generated/$(APP).ts
 I18N     := src/generated/i18n.ts
+PAISES_TS := src/generated/paises.ts
 
 MODULES := $(SRC4GL:%.4gl=$(BIN)/%.42m)
 FORMS   := $(SRCPER:%.per=$(BIN)/%.42f)
@@ -71,13 +75,13 @@ export FGLDIR
 export FGLLDPATH := $(BIN)
 export PATH := $(FGLDIR)/bin:$(FGLASDIR)/bin:$(PATH)
 
-.PHONY: all build contract i18n strings-extract run deploy deploy-gas deploy-arc web-install web-dev \
+.PHONY: all build contract i18n db db-reset strings-extract run deploy deploy-gas deploy-arc web-install web-dev \
         check-gateway gateway-install gateway-uninstall gateway-start gateway-stop gateway-restart gateway-status \
         gateway-logs gateway-ensure clean
 
 all: build
 
-build: $(MODULES) $(FORMS) $(RESOUT) $(CONTRACT) $(I18N)
+build: $(MODULES) $(FORMS) $(RESOUT) $(CONTRACT) $(I18N) $(PAISES_TS)
 
 $(BIN):
 	mkdir -p $(BIN)
@@ -105,6 +109,8 @@ $(foreach l,$(LANGS),$(eval $(call lang_rules,$(l))))
 
 # the main module needs the modules it imports compiled first
 $(BIN)/$(MAIN).42m: $(BIN)/$(APPMOD).42m $(BIN)/lib_idioma.42m
+$(BIN)/$(APPMOD).42m: $(BIN)/lib_paises.42m
+$(BIN)/lib_paises.42m: $(BIN)/lib_idioma.42m
 
 # dictionary of the React UI, from the same .str files the 4GL uses
 i18n: $(I18N)
@@ -115,6 +121,20 @@ $(I18N): $(foreach l,$(LANGS),strings/$(l)/arc_demo.str) scripts/generate-i18n.m
 strings-extract:
 	@{ for f in $(SRCPER); do fglform -m $$f; done; for f in $(SRC4GL); do fglcomp -m $$f; done; } | sort -u
 
+# --- PostgreSQL database -------------------------------------------------------
+# The countries combobox is filled by a cursor over the table paises (lib_paises.4gl). The
+# Genero connection is configured in fglprofile (dbi.database.arc_demo.*): local socket,
+# authentication by OS user, so the user that runs GAS must be a PostgreSQL role.
+db:
+	bash db/build_db.sh $(DBNAME)
+
+db-reset:
+	bash db/build_db.sh $(DBNAME) --reset
+
+# country lists of the React UI, read from the table (regenerated when the data changes)
+$(PAISES_TS): db/schema.sql db/seed.sql scripts/generate-paises.mjs | db
+	node scripts/generate-paises.mjs $(DBNAME) $@
+
 # --- Arc contract: rebuilt when any .4gl or .per changes --------------------
 contract: $(CONTRACT)
 
@@ -122,12 +142,12 @@ $(CONTRACT): $(APPMOD).4gl $(SRCPER) scripts/generate-contract.mjs scripts/lib/b
 	node scripts/generate-contract.mjs $(APP) $@ $(APPMOD).4gl $(SRCPER)
 
 # --- run locally through GDC (env as in genv.sh) ----------------------------
-run: build
+run: build db
 	cd $(BIN) && FGLGUI=1 FGLRESOURCEPATH=$(BIN)/$(firstword $(LANGS)) FGLPROFILE=$(ROOT)/fglprofile.universal FGLSERVER=$${FGLSERVER:-localhost:0} \
 	  fglrun $(MAIN).42m
 
 # --- GAS version (GBC) -------------------------------------------------------
-deploy-gas: build
+deploy-gas: build db
 	bash scripts/write_xcf.sh "$(GAS_APPDIR)" "$(BIN)" "$(FGLDIR)" "$(APP)" "$(MAIN).42m" "$(GBC)"
 	@# one connector per language, id <app>_<lang>: the language is its program argument
 	@for l in $(LANGS); do \

@@ -1,6 +1,8 @@
 import { useField } from '@4js-ai/arc-react';
 import type { ArcDemo } from '../generated/arc_demo';
-import { t } from '../i18n';
+import { getLang, t } from '../i18n';
+import { DEFAULT_LANG } from '../generated/i18n';
+import { PAISES } from '../generated/paises';
 
 type S = ArcDemo.Session;
 
@@ -15,10 +17,9 @@ export function Descripcion({ session }: { session: S }) {
   );
 }
 
-// Items of the `codigop` COMBOBOX (lib_paises.cargar_paises) and the `tipo` RADIOGROUP in
-// alta.per. The protocol does not carry item labels: codes are copied here, texts come
-// from the .str files.
-const PAISES = ['ES', 'FR', 'DE', 'IT', 'PT', 'GB', 'US', 'MX', 'AR', 'BR'];
+// Items of the `codigop` COMBOBOX: lib_paises.cargar_paises fills it from the table `paises`; the
+// Arc protocol does not carry items, so the UI uses src/generated/paises.ts (same table).
+// Items of the `tipo` RADIOGROUP in alta.per: codes copied here, texts from the .str files.
 const TIPOS = [
   { value: 'A', key: 'antiguo' },
   { value: 'N', key: 'nuevo' },
@@ -60,8 +61,8 @@ export function Alta({ session }: { session: S }) {
         {t('alta.ubicacion')}
         {/* NOT NULL in the form: no empty option; the form's DEFAULT ("ES") is the initial value */}
         <select value={codigop.value ?? 'ES'} onChange={(e) => codigop.set(e.target.value)}>
-          {PAISES.map((code) => (
-            <option key={code} value={code}>{t(`pais.${code}`)}</option>
+          {(PAISES[getLang()] ?? PAISES[DEFAULT_LANG] ?? []).map((p) => (
+            <option key={p.code} value={p.code}>{p.name}</option>
           ))}
         </select>
       </label>

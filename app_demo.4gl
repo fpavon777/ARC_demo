@@ -7,6 +7,9 @@
 
 IMPORT json
 
+-- Logical database name: see dbi.database.arc_demo.* in fglprofile and db/schema.sql
+PRIVATE CONSTANT C_BD = "arc_demo"
+
 TYPE t_consulta RECORD
     empr_alb   CHAR(10),
     nume_alb   INTEGER,
@@ -25,6 +28,12 @@ PUBLIC FUNCTION run() RETURNS ()
   CALL ui.Interface.loadStyles("demo")
   OPEN WINDOW w1 WITH FORM "portada" ATTRIBUTE(style="main", text=%"app.titulo")
   CALL ui.Window.getCurrent().getForm().setElementText("l2", SFMT(%"portada.fecha", TODAY))
+  -- the countries combobox of the alta form is filled from the database
+  TRY
+    CONNECT TO C_BD AS "main"
+  CATCH
+    ERROR SFMT(%"error.bd", sqlca.sqlcode, SQLERRMESSAGE)
+  END TRY
   MENU %"menu.titulo"
 
     ON ACTION albaranes ATTRIBUTES(TEXT=%"menu.albaranes", COMMENT=%"menu.albaranes.comment")
@@ -41,6 +50,11 @@ PUBLIC FUNCTION run() RETURNS ()
 
   END MENU
   CLOSE WINDOW w1
+  TRY
+    DISCONNECT "main"
+  CATCH
+    -- no connection was opened
+  END TRY
 
 END FUNCTION
 

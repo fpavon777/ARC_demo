@@ -1,2 +1,6 @@
 fglrun.localization.file.count = 1
 fglrun.localization.file.1.name = "arc_demo.42s"
+
+# PostgreSQL database of the demo (see db/): local socket, authentication by OS user
+dbi.database.arc_demo.driver = "dbmpgs"
+dbi.database.arc_demo.source = "arc_demo"

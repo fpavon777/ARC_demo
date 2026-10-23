@@ -6,6 +6,9 @@
 PRIVATE CONSTANT C_IDIOMAS = "es en"
 PRIVATE CONSTANT C_DEFECTO = "es"
 
+-- Language chosen for this session by idioma_usuario()
+PRIVATE DEFINE m_idioma STRING
+
 -- =============================================================================
 #+ Returns the language code to use for this session.
 #+
@@ -24,6 +27,30 @@ PRIVATE CONSTANT C_DEFECTO = "es"
 -- =============================================================================
 
 PUBLIC FUNCTION idioma_usuario() RETURNS STRING
+
+  LET m_idioma = elegir_idioma()
+  RETURN m_idioma
+
+END FUNCTION
+
+-- =============================================================================
+#+ Language chosen for this session by idioma_usuario(); the default one if it
+#+ has not been called yet.
+#+
+#+ @return Language code
+-- =============================================================================
+
+PUBLIC FUNCTION idioma_actual() RETURNS STRING
+
+  IF m_idioma IS NULL THEN
+    RETURN C_DEFECTO
+  END IF
+  RETURN m_idioma
+
+END FUNCTION
+
+-- Applies the precedence rules documented in idioma_usuario().
+PRIVATE FUNCTION elegir_idioma() RETURNS STRING
 
   DEFINE l_code STRING
   DEFINE l_pref STRING

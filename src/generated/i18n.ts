@@ -15,16 +15,6 @@ export const messages: Record<Lang, Record<string, string>> = {
     "alta.tipo.antiguo": "Antiguo",
     "alta.tipo.nuevo": "Nuevo",
     "alta.tipo.obsoleto": "Obsoleto",
-    "pais.ES": "España",
-    "pais.FR": "Francia",
-    "pais.DE": "Alemania",
-    "pais.IT": "Italia",
-    "pais.PT": "Portugal",
-    "pais.GB": "Reino Unido",
-    "pais.US": "Estados Unidos",
-    "pais.MX": "México",
-    "pais.AR": "Argentina",
-    "pais.BR": "Brasil",
     "app.titulo": "Demo",
     "menu.titulo": "Programa",
     "menu.albaranes": "Albaranes",
@@ -63,7 +53,9 @@ export const messages: Record<Lang, Record<string, string>> = {
     "action.append": "Añadir",
     "action.insert": "Insertar",
     "action.delete": "Eliminar",
-    "action.help": "Ayuda"
+    "action.help": "Ayuda",
+    "error.paises": "No se pudo cargar la lista de países (%1)",
+    "error.bd": "No se pudo conectar con la base de datos (%1: %2)"
   },
   "en": {
     "alta.cliente": "Customer",
@@ -73,16 +65,6 @@ export const messages: Record<Lang, Record<string, string>> = {
     "alta.tipo.antiguo": "Old",
     "alta.tipo.nuevo": "New",
     "alta.tipo.obsoleto": "Obsolete",
-    "pais.ES": "Spain",
-    "pais.FR": "France",
-    "pais.DE": "Germany",
-    "pais.IT": "Italy",
-    "pais.PT": "Portugal",
-    "pais.GB": "United Kingdom",
-    "pais.US": "United States",
-    "pais.MX": "Mexico",
-    "pais.AR": "Argentina",
-    "pais.BR": "Brazil",
     "app.titulo": "Demo",
     "menu.titulo": "Program",
     "menu.albaranes": "Delivery notes",
@@ -121,6 +103,8 @@ export const messages: Record<Lang, Record<string, string>> = {
     "action.append": "Append",
     "action.insert": "Insert",
     "action.delete": "Delete",
-    "action.help": "Help"
+    "action.help": "Help",
+    "error.paises": "The list of countries could not be loaded (%1)",
+    "error.bd": "Could not connect to the database (%1: %2)"
   }
 };
